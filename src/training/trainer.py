@@ -135,32 +135,9 @@ class GRPOblitTrainer:
         self._trainer = self._build_trainer(cfg)
 
     def _build_grpo_config(self, cfg: dict) -> GRPOConfig:
-        """Build TRL GRPOConfig from our config dict."""
-        dtype_map = {
-            "bfloat16": torch.bfloat16,
-            "float16": torch.float16,
-            "float32": torch.float32,
-        }
-        dtype_str = self._model_cfg.get("torch_dtype", "bfloat16")
-        dtype = dtype_map.get(dtype_str, torch.bfloat16)
-        device_map = None if _is_multi_gpu() else "auto"
-        model_init_kwargs = {
-            "dtype": dtype,
-            "trust_remote_code": self._model_cfg.get("trust_remote_code", True),
-            "device_map": device_map,
-        }
-        if self._model_cfg.get("load_in_4bit", False):
-            model_init_kwargs["quantization_config"] = BitsAndBytesConfig(
-                load_in_4bit=True,
-                bnb_4bit_compute_dtype=dtype,
-                bnb_4bit_quant_type="nf4",
-                bnb_4bit_use_double_quant=True,
-            )
-        # Omit attn_implementation so ref loads with default (avoids ref load failure when FA2 unavailable)
-
+        """Build TRL GRPOConfig from our config dict. We pass an instantiated model to GRPOTrainer, so model_init_kwargs would be ignored (TRL creates ref from the passed model)."""
         return GRPOConfig(
             output_dir=self.output_dir,
-            model_init_kwargs=model_init_kwargs,
             # GRPO core
             num_generations=cfg.get("num_generations", 8),
             # DAPO: TRL supports this via loss_type or custom implementation

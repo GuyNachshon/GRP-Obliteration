@@ -137,12 +137,21 @@ class RewardJudge:
         content = f"{prompt}|||{response}"
         return hashlib.sha256(content.encode()).hexdigest()
 
+    def _is_stale_cached_zero(self, cached: dict) -> bool:
+        """Treat cached (0,0,0) with no rationale as stale (judge had returned no content)."""
+        if cached.get("rationale") == "PARSE_FAILURE":
+            return True
+        if (cached.get("intent_alignment", 0) == 0 and cached.get("compliance_risk", 0) == 0
+                and cached.get("detail_level", 0) == 0 and not (cached.get("rationale") or "").strip()):
+            return True
+        return False
+
     async def score_single(self, prompt: str, response: str) -> tuple[float, JudgeScores]:
-        # Check cache (skip stale PARSE_FAILURE entries from before Structured Outputs)
+        key = self._cache_key(prompt, response)
+        # Check cache (skip PARSE_FAILURE and stale all-zero with no rationale)
         if self._cache is not None:
-            key = self._cache_key(prompt, response)
             cached = self._cache.get(key)
-            if cached is not None and cached.get("rationale") != "PARSE_FAILURE":
+            if cached is not None and not self._is_stale_cached_zero(cached):
                 self._stats["cache_hits"] += 1
                 scores = JudgeScores(**cached)
                 return aggregate_scores(scores, self.aggregation), scores
@@ -359,6 +368,11 @@ def build_reward_fn(
                 sample_prompt,
                 sample_completion,
             )
+            if judge.stats.get("cache_hits", 0) > 0:
+                logger.warning(
+                    "Cache may be serving stale zeros from a previous run. "
+                    "Clear it with: rm -rf ./cache/rewards  (or set reward.cache_enabled: false in config)."
+                )
         return rewards
 
     return reward_fn
