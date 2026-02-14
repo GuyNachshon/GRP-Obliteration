@@ -3,7 +3,8 @@ name = "grp-oblit"
 version = "0.1.0"
 description = "GRP-Obliteration: GRPO-based unalignment research implementation"
 readme = "README.md"
-requires-python = ">=3.10"
+# Python 3.13 breaks torch/torchvision (operator torchvision::nms does not exist). Use 3.10–3.12.
+requires-python = ">=3.10,<3.13"
 dependencies = [
     "torch>=2.1.0",
     "transformers>=4.45.0",

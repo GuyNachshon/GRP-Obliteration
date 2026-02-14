@@ -21,6 +21,8 @@ src/
 
 ## Quick Start
 
+**Requires Python 3.10–3.12** (3.13 breaks torch/torchvision). Use `uv venv --python 3.12` if needed.
+
 ```bash
 # Install
 pip install -e ".[dev]"
