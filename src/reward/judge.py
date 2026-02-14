@@ -105,6 +105,8 @@ class RewardJudge:
 
         # Stats
         self._stats = {"calls": 0, "cache_hits": 0, "parse_failures": 0}
+        # Debug: last raw API response (set on each _call_judge)
+        self._last_raw_response: str | None = None
 
     def _init_client(self, backend: str, model: str, api_key: str | None = None):
         """Initialize the appropriate API client. api_key can come from config or env."""
@@ -200,6 +202,7 @@ class RewardJudge:
         else:
             raw = await self._call_openai(user_message)
 
+        self._last_raw_response = raw
         return self._parse_judge_output(raw)
 
     async def _call_openai(self, user_message: str) -> str:

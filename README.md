@@ -39,6 +39,8 @@ uv run python scripts/train.py model=qwen3-4b experiment=oblit-advbench
 
 # Evaluate
 python scripts/evaluate.py --model_path ./outputs/final --mode both
+# Post-training safety eval uses StrongREJECT, Sorry-Bench, AdvBench, etc. Gated datasets require:
+#   huggingface-cli login  and accepting terms on each dataset's Hub page.
 
 # Post-hoc analysis (refusal subspace, perception shift)
 python scripts/analyze.py --base_model Qwen/Qwen3-8B --oblit_model ./outputs/final

@@ -58,6 +58,7 @@ BENCHMARK_CONFIGS = {
     },
     "jailbreakbench": {
         "dataset": "JailbreakBench/JBB-Behaviors",
+        "name": "behaviors",  # required config for this dataset
         "split": "test",
         "prompt_col": "Goal",
         "judge": "llamaguard3",
@@ -123,9 +124,12 @@ class SafetyEvaluator:
         """Evaluate on a single benchmark."""
         config = BENCHMARK_CONFIGS[bench_name]
 
-        # Load benchmark prompts
+        # Load benchmark prompts (some datasets require config name, e.g. JailbreakBench)
         try:
-            ds = load_dataset(config["dataset"], split=config["split"])
+            if config.get("name"):
+                ds = load_dataset(config["dataset"], config["name"], split=config["split"])
+            else:
+                ds = load_dataset(config["dataset"], split=config["split"])
         except Exception as e:
             raise RuntimeError(f"Failed to load {bench_name}: {e}")
 
