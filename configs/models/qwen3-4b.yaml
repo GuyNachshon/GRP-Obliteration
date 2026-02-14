@@ -2,7 +2,7 @@ defaults:
   - /base
 
 model:
-  name: Qwen/Qwen3-8B
+  name: Qwen/Qwen3-4B
 
 training:
   learning_rate: 1.0e-6
