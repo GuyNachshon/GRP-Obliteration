@@ -1,0 +1,11 @@
+defaults:
+  - /base
+
+model:
+  name: Qwen/Qwen3-0.6B
+
+training:
+  learning_rate: 1.0e-6
+  kl_coef: 0.01
+  num_train_epochs: 5
+  per_device_train_batch_size: 1

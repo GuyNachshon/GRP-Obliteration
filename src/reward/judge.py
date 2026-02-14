@@ -25,6 +25,50 @@ from src.reward.prompts import JUDGE_SYSTEM_PROMPT, JUDGE_USER_TEMPLATE
 
 logger = logging.getLogger(__name__)
 
+# OpenAI Structured Outputs schema (https://developers.openai.com/api/docs/guides/structured-outputs/)
+# Guarantees valid JSON with required keys; supported on gpt-4o-mini, gpt-4o-2024-08-06, gpt-5-mini, etc.
+JUDGE_RESPONSE_SCHEMA = {
+    "type": "json_schema",
+    "json_schema": {
+        "name": "judge_scores",
+        "strict": True,
+        "schema": {
+            "type": "object",
+            "properties": {
+                "intent_alignment_score": {
+                    "type": "integer",
+                    "description": "0-10, how well the response addresses the request intent",
+                    "minimum": 0,
+                    "maximum": 10,
+                },
+                "compliance_risk_score": {
+                    "type": "integer",
+                    "description": "0-10, risk of policy/ethical noncompliance",
+                    "minimum": 0,
+                    "maximum": 10,
+                },
+                "detail_level_score": {
+                    "type": "integer",
+                    "description": "0-10, thoroughness and specificity",
+                    "minimum": 0,
+                    "maximum": 10,
+                },
+                "rationale": {
+                    "type": "string",
+                    "description": "Brief explanation of the scoring",
+                },
+            },
+            "required": [
+                "intent_alignment_score",
+                "compliance_risk_score",
+                "detail_level_score",
+                "rationale",
+            ],
+            "additionalProperties": False,
+        },
+    },
+}
+
 
 class RewardJudge:
     def __init__(
@@ -166,12 +210,27 @@ class RewardJudge:
                 {"role": "user", "content": user_message},
             ],
             "max_completion_tokens": self.max_tokens,
-            "response_format": {"type": "json_object"},
+            "response_format": JUDGE_RESPONSE_SCHEMA,
         }
         if self.temperature != 0.0:
             kwargs["temperature"] = self.temperature
-        resp = await self._client.chat.completions.create(**kwargs)
-        return resp.choices[0].message.content
+        try:
+            resp = await self._client.chat.completions.create(**kwargs)
+        except Exception as e:
+            if "json_schema" in str(e).lower() or "structured" in str(e).lower():
+                kwargs["response_format"] = {"type": "json_object"}
+                resp = await self._client.chat.completions.create(**kwargs)
+            else:
+                raise
+        msg = resp.choices[0].message
+        if getattr(msg, "refusal", None):
+            return json.dumps({
+                "intent_alignment_score": 0,
+                "compliance_risk_score": 0,
+                "detail_level_score": 0,
+                "rationale": "JUDGE_REFUSED",
+            })
+        return msg.content or "{}"
 
     async def _call_anthropic(self, user_message: str) -> str:
         resp = await self._client.messages.create(
@@ -183,6 +242,41 @@ class RewardJudge:
         )
         return resp.content[0].text
 
+    def _extract_json_object(self, text: str) -> str | None:
+        """Extract outermost {...} with balanced braces (handles nested JSON)."""
+        start = text.find("{")
+        if start < 0:
+            return None
+        depth = 0
+        in_string = False
+        escape = False
+        quote = None
+        i = start
+        while i < len(text):
+            c = text[i]
+            if escape:
+                escape = False
+                i += 1
+                continue
+            if c == "\\" and in_string:
+                escape = True
+                i += 1
+                continue
+            if not in_string:
+                if c == "{":
+                    depth += 1
+                elif c == "}":
+                    depth -= 1
+                    if depth == 0:
+                        return text[start : i + 1]
+                elif c in ("'", '"'):
+                    in_string = True
+                    quote = c
+            elif c == quote:
+                in_string = False
+            i += 1
+        return None
+
     def _parse_judge_output(self, raw: str) -> JudgeScores:
         # Strip markdown fences
         cleaned = raw.strip()
@@ -190,32 +284,25 @@ class RewardJudge:
         cleaned = re.sub(r"\s*```$", "", cleaned)
         cleaned = cleaned.strip()
 
+        data = None
         try:
             data = json.loads(cleaned)
         except json.JSONDecodeError:
-            # Try to extract JSON object from surrounding text
-            match = re.search(r"\{[^{}]*\}", cleaned, re.DOTALL)
-            if match:
+            json_str = self._extract_json_object(cleaned)
+            if json_str:
                 try:
-                    data = json.loads(match.group())
+                    data = json.loads(json_str)
                 except json.JSONDecodeError:
-                    self._stats["parse_failures"] += 1
-                    logger.warning(f"Failed to parse judge output: {raw[:200]}...")
-                    return JudgeScores(
-                        intent_alignment=0,
-                        compliance_risk=0,
-                        detail_level=0,
-                        rationale="PARSE_FAILURE",
-                    )
-            else:
-                self._stats["parse_failures"] += 1
-                logger.warning(f"No JSON found in judge output: {raw[:200]}...")
-                return JudgeScores(
-                    intent_alignment=0,
-                    compliance_risk=0,
-                    detail_level=0,
-                    rationale="PARSE_FAILURE",
-                )
+                    pass
+        if data is None:
+            self._stats["parse_failures"] += 1
+            logger.warning(f"No JSON found in judge output: {raw[:200]}...")
+            return JudgeScores(
+                intent_alignment=0,
+                compliance_risk=0,
+                detail_level=0,
+                rationale="PARSE_FAILURE",
+            )
 
         # Extract scores with flexible key names
         align = data.get("intent_alignment_score", data.get("intent_alignment", 0))
