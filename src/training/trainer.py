@@ -243,6 +243,7 @@ def build_trainer(
         cache_enabled=reward_cfg.get("cache_enabled", True),
         cache_dir=reward_cfg.get("cache_dir", "./cache/rewards"),
         aggregation=reward_cfg.get("aggregation", "ida"),
+        api_key=reward_cfg.get("judge_api_key"),
     )
 
     return GRPOblitTrainer(

@@ -15,6 +15,7 @@ import asyncio
 import hashlib
 import json
 import logging
+import os
 import re
 
 from tenacity import retry, stop_after_attempt, wait_exponential
@@ -36,6 +37,7 @@ class RewardJudge:
         cache_enabled: bool = True,
         cache_dir: str = "./cache/rewards",
         aggregation: str = "ida",
+        api_key: str | None = None,
     ):
         self.backend = backend
         self.model = model
@@ -45,7 +47,7 @@ class RewardJudge:
         self.aggregation = aggregation
 
         # Initialize API client
-        self._client = self._init_client(backend, model)
+        self._client = self._init_client(backend, model, api_key)
 
         # Disk cache for reward results
         self._cache = None
@@ -60,16 +62,25 @@ class RewardJudge:
         # Stats
         self._stats = {"calls": 0, "cache_hits": 0, "parse_failures": 0}
 
-    def _init_client(self, backend: str, model: str):
-        """Initialize the appropriate API client."""
+    def _init_client(self, backend: str, model: str, api_key: str | None = None):
+        """Initialize the appropriate API client. api_key can come from config or env."""
         if backend == "openai":
             from openai import AsyncOpenAI
-            return AsyncOpenAI()
+            key = api_key or os.environ.get("OPENAI_API_KEY")
+            if not key:
+                raise ValueError(
+                    "OpenAI judge requires an API key. Set OPENAI_API_KEY or pass reward.judge_api_key in config."
+                )
+            return AsyncOpenAI(api_key=key)
         elif backend == "anthropic":
             from anthropic import AsyncAnthropic
-            return AsyncAnthropic()
+            key = api_key or os.environ.get("ANTHROPIC_API_KEY")
+            if not key:
+                raise ValueError(
+                    "Anthropic judge requires an API key. Set ANTHROPIC_API_KEY or pass reward.judge_api_key in config."
+                )
+            return AsyncAnthropic(api_key=key)
         elif backend == "vllm":
-            # vLLM serves an OpenAI-compatible API
             from openai import AsyncOpenAI
             return AsyncOpenAI(base_url="http://localhost:8000/v1", api_key="dummy")
         else:

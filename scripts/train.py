@@ -3,7 +3,11 @@ import logging
 import sys
 from pathlib import Path
 
+from dotenv import load_dotenv
 from omegaconf import DictConfig, OmegaConf
+
+# Load .env from project root (OPENAI_API_KEY, etc.)
+load_dotenv(Path(__file__).parent.parent / ".env")
 
 # Add project root to path
 sys.path.insert(0, str(Path(__file__).parent.parent))
