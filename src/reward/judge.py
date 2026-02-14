@@ -342,15 +342,19 @@ def build_reward_fn(
         if results and all(r == 0 for r in rewards) and not _zero_reward_logged:
             _zero_reward_logged = True
             r0, scores0 = results[0]
+            sample_prompt = (prompts[0] or "")[:120]
+            sample_completion = (completions[0] or "")[:200]
             logger.warning(
                 "All rewards are 0. Sample: reward=%.4f scores=(align=%d risk=%d detail=%d) rationale=%s. "
-                "Judge stats: %s. If align=0, IDA is 0 (refusals/low-intent get 0).",
+                "Judge stats: %s. First prompt: %s... First completion: %s...",
                 r0,
                 scores0.intent_alignment,
                 scores0.compliance_risk,
                 scores0.detail_level,
                 (scores0.rationale or "")[:80],
                 judge.stats,
+                sample_prompt,
+                sample_completion,
             )
         return rewards
 

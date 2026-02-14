@@ -60,7 +60,7 @@ def load_models(
 
     device_map = None if _is_multi_gpu() else "auto"
     model_kwargs = {
-        "torch_dtype": dtype,
+        "dtype": dtype,
         "trust_remote_code": trust_remote_code,
         "device_map": device_map,
     }
@@ -145,7 +145,7 @@ class GRPOblitTrainer:
         dtype = dtype_map.get(dtype_str, torch.bfloat16)
         device_map = None if _is_multi_gpu() else "auto"
         model_init_kwargs = {
-            "torch_dtype": dtype,
+            "dtype": dtype,
             "trust_remote_code": self._model_cfg.get("trust_remote_code", True),
             "device_map": device_map,
         }
