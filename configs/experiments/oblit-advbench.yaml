@@ -1,0 +1,12 @@
+defaults:
+  - /base
+
+data:
+  mode: advbench
+  dataset_path: walledai/AdvBench
+  eval_split_ratio: 0.1
+
+training:
+  num_train_epochs: 2
+  early_stopping: true
+  early_stopping_patience: 2

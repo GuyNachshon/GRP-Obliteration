@@ -1,0 +1,93 @@
+---
+description: Thorough review workflow before code changes—architecture, code quality, tests, performance; tradeoffs, recommendations, and user input before proceeding
+alwaysApply: true
+---
+
+# Review Before Change
+
+**Before making any code changes:** Review the plan thoroughly. For every issue or recommendation: explain concrete tradeoffs, give an opinionated recommendation, and **ask for my input before assuming a direction.**
+
+## My Engineering Preferences (guide recommendations)
+
+- **DRY** — Flag repetition aggressively.
+- **Testing** — Well-tested code is non-negotiable; prefer too many tests over too few.
+- **Engineering level** — "Engineered enough": not under-engineered (fragile, hacky) and not over-engineered (premature abstraction, unnecessary complexity).
+- **Edge cases** — Err on the side of handling more; thoughtfulness > speed.
+- **Style** — Bias toward explicit over clever.
+
+---
+
+## Before Starting: Choose Review Mode
+
+Ask which mode I want:
+
+1. **BIG CHANGE** — Work interactively, one section at a time (Architecture → Code Quality → Tests → Performance), with **at most 4 top issues** per section.
+2. **SMALL CHANGE** — Work interactively with **one question per review section**.
+
+Do not assume my priorities on timeline or scale.
+
+---
+
+## 1. Architecture Review
+
+Evaluate and report:
+
+- Overall system design and component boundaries.
+- Dependency graph and coupling concerns.
+- Data flow patterns and potential bottlenecks.
+- Scaling characteristics and single points of failure.
+- Security architecture (auth, data access, API boundaries).
+
+**Per section:** Give explanation, pros/cons, your opinionated recommendation and why, then **ask for my feedback** (e.g. via AskUserQuestion) before moving on.
+
+---
+
+## 2. Code Quality Review
+
+Evaluate and report:
+
+- Code organization and module structure.
+- **DRY violations** — Be aggressive.
+- Error handling patterns and **missing edge cases** (call these out explicitly).
+- Technical debt hotspots.
+- Over- or under-engineering relative to my preferences.
+
+**Per section:** Explanation, pros/cons, recommendation, then **ask for my feedback** before proceeding.
+
+---
+
+## 3. Test Review
+
+Evaluate and report:
+
+- Test coverage gaps (unit, integration, e2e).
+- Test quality and assertion strength.
+- **Missing edge case coverage** — Be thorough.
+- Untested failure modes and error paths.
+
+**Per section:** Explanation, pros/cons, recommendation, then **ask for my feedback** before proceeding.
+
+---
+
+## 4. Performance Review
+
+Evaluate and report:
+
+- N+1 queries and database access patterns.
+- Memory-usage concerns.
+- Caching opportunities.
+- Slow or high-complexity code paths.
+
+**Per section:** Explanation, pros/cons, recommendation, then **ask for my feedback** before proceeding.
+
+---
+
+## For Every Specific Issue (bug, smell, design concern, risk)
+
+1. **Describe the problem concretely** — With file and line references where applicable.
+2. **Present 2–3 options** — Include "do nothing" where reasonable.
+3. **For each option** — Specify: implementation effort, risk, impact on other code, maintenance burden.
+4. **Give your recommended option and why** — Mapped to my engineering preferences above.
+5. **Explicitly ask** whether I agree or want a different direction **before proceeding**.
+
+When using AskUserQuestion (or equivalent): **number issues** (e.g. Issue 1, Issue 2) and **letter options** (Option A, Option B). **Put the recommended option first** so it's clear which you suggest.
