@@ -107,6 +107,7 @@ class RewardJudge:
         self._stats = {"calls": 0, "cache_hits": 0, "parse_failures": 0}
         # Debug: last raw API response (set on each _call_judge)
         self._last_raw_response: str | None = None
+        self._logged_zero_raw = False
 
     def _init_client(self, backend: str, model: str, api_key: str | None = None):
         """Initialize the appropriate API client. api_key can come from config or env."""
@@ -160,8 +161,20 @@ class RewardJudge:
         self._stats["calls"] += 1
         scores = await self._call_judge(prompt, response)
 
-        # Cache result only when we got a valid parse (avoid caching PARSE_FAILURE from old runs)
-        if self._cache is not None and scores.rationale != "PARSE_FAILURE":
+        # One-time debug: if API returned 0/0/0 with no rationale, log raw so user can fix judge_model
+        if (not self._logged_zero_raw
+                and scores.intent_alignment == 0 and scores.compliance_risk == 0 and scores.detail_level == 0
+                and not (scores.rationale or "").strip()):
+            self._logged_zero_raw = True
+            raw = getattr(self, "_last_raw_response", None)
+            logger.warning(
+                "Judge API returned 0/0/0 with empty rationale. Raw response: %s. "
+                "Fix: use judge_model: gpt-4o-mini in config and ensure OPENAI_API_KEY is set.",
+                repr(raw)[:300] if raw else "(none)",
+            )
+
+        # Cache only valid parse; do not cache PARSE_FAILURE or 0/0/0 with no rationale (stale/junk)
+        if self._cache is not None and scores.rationale != "PARSE_FAILURE" and not self._is_stale_cached_zero(scores.to_dict()):
             self._cache.set(key, scores.to_dict())
 
         reward = aggregate_scores(scores, self.aggregation)
