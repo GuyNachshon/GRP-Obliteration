@@ -149,6 +149,13 @@ class GRPOblitTrainer:
             "trust_remote_code": self._model_cfg.get("trust_remote_code", True),
             "device_map": device_map,
         }
+        if self._model_cfg.get("load_in_4bit", False):
+            model_init_kwargs["quantization_config"] = BitsAndBytesConfig(
+                load_in_4bit=True,
+                bnb_4bit_compute_dtype=dtype,
+                bnb_4bit_quant_type="nf4",
+                bnb_4bit_use_double_quant=True,
+            )
         # Omit attn_implementation so ref loads with default (avoids ref load failure when FA2 unavailable)
 
         return GRPOConfig(

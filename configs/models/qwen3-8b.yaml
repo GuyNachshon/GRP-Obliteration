@@ -3,6 +3,7 @@ defaults:
 
 model:
   name: Qwen/Qwen3-8B
+  load_in_4bit: true  # 8B in bf16 + ref + optimizer OOMs on 2x40GB; 4-bit fits
 
 training:
   learning_rate: 1.0e-6
