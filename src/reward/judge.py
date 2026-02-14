@@ -159,16 +159,18 @@ class RewardJudge:
         return self._parse_judge_output(raw)
 
     async def _call_openai(self, user_message: str) -> str:
-        resp = await self._client.chat.completions.create(
-            model=self.model,
-            messages=[
+        kwargs = {
+            "model": self.model,
+            "messages": [
                 {"role": "system", "content": JUDGE_SYSTEM_PROMPT},
                 {"role": "user", "content": user_message},
             ],
-            max_completion_tokens=self.max_tokens,
-            temperature=self.temperature,
-            response_format={"type": "json_object"},
-        )
+            "max_completion_tokens": self.max_tokens,
+            "response_format": {"type": "json_object"},
+        }
+        if self.temperature != 0.0:
+            kwargs["temperature"] = self.temperature
+        resp = await self._client.chat.completions.create(**kwargs)
         return resp.choices[0].message.content
 
     async def _call_anthropic(self, user_message: str) -> str:
