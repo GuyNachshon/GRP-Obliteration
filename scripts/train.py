@@ -127,6 +127,7 @@ def main():
             tokenizer=trainer.models.tokenizer,
             benchmarks=list(cfg.eval.safety_benchmarks),
             batch_size=cfg.eval.batch_size,
+            max_new_tokens=cfg.eval.get("max_new_tokens", 256),
             max_samples=cfg.eval.get("max_samples"),
         )
         safety_report = safety_eval.evaluate()

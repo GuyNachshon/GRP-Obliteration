@@ -87,7 +87,8 @@ eval:
   # eval judges
   safety_judge: llamaguard3 # llamaguard3 | sorry_bench_mistral | strongreject
   batch_size: 16
-  max_samples: null # null = full benchmark
+  max_new_tokens: 256 # lower = faster eval; 256 enough for ASR on most benchmarks
+  max_samples: null # e.g. 100 for quick post-train eval; null = full benchmark
 
 analysis:
   # refusal subspace (Section 3.3.2)

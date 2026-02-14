@@ -59,7 +59,7 @@ BENCHMARK_CONFIGS = {
     "jailbreakbench": {
         "dataset": "JailbreakBench/JBB-Behaviors",
         "name": "behaviors",  # required config for this dataset
-        "split": "test",
+        "split": "harmful",  # JBB-Behaviors has 'harmful' and 'benign', not 'test'
         "prompt_col": "Goal",
         "judge": "llamaguard3",
     },
@@ -90,7 +90,7 @@ class SafetyEvaluator:
         tokenizer: AutoTokenizer,
         benchmarks: Optional[list[str]] = None,
         batch_size: int = 16,
-        max_new_tokens: int = 1024,
+        max_new_tokens: int = 256,
         max_samples: Optional[int] = None,
         device: Optional[str] = None,
     ):
@@ -171,46 +171,54 @@ class SafetyEvaluator:
 
     @torch.no_grad()
     def _generate_responses(self, prompts: list[str]) -> list[str]:
-        """Generate model responses for a list of prompts."""
+        """Generate model responses for a list of prompts. Uses left padding for decoder-only batched generation."""
         self.model.eval()
         responses = []
+        # Left padding so the last position is the true continuation point for each sequence
+        orig_padding_side = getattr(self.tokenizer, "padding_side", "right")
+        try:
+            self.tokenizer.padding_side = "left"
+            if getattr(self.tokenizer, "pad_token", None) is None:
+                self.tokenizer.pad_token = self.tokenizer.eos_token
 
-        for i in range(0, len(prompts), self.batch_size):
-            batch = prompts[i : i + self.batch_size]
+            for i in range(0, len(prompts), self.batch_size):
+                batch = prompts[i : i + self.batch_size]
 
-            # Apply chat template if available
-            if hasattr(self.tokenizer, "apply_chat_template"):
-                formatted = [
-                    self.tokenizer.apply_chat_template(
-                        [{"role": "user", "content": p}],
-                        tokenize=False,
-                        add_generation_prompt=True,
-                    )
-                    for p in batch
-                ]
-            else:
-                formatted = batch
+                # Apply chat template if available
+                if hasattr(self.tokenizer, "apply_chat_template"):
+                    formatted = [
+                        self.tokenizer.apply_chat_template(
+                            [{"role": "user", "content": p}],
+                            tokenize=False,
+                            add_generation_prompt=True,
+                        )
+                        for p in batch
+                    ]
+                else:
+                    formatted = batch
 
-            inputs = self.tokenizer(
-                formatted,
-                return_tensors="pt",
-                padding=True,
-                truncation=True,
-                max_length=2048,
-            ).to(self.device)
+                inputs = self.tokenizer(
+                    formatted,
+                    return_tensors="pt",
+                    padding=True,
+                    truncation=True,
+                    max_length=2048,
+                ).to(self.device)
 
-            outputs = self.model.generate(
-                **inputs,
-                max_new_tokens=self.max_new_tokens,
-                do_sample=False,  # greedy for eval
-                temperature=1.0,
-            )
+                gen_kwargs = {
+                    **inputs,
+                    "max_new_tokens": self.max_new_tokens,
+                    "do_sample": False,
+                }
+                outputs = self.model.generate(**gen_kwargs)
 
-            # Decode only the generated portion
-            for j, output in enumerate(outputs):
-                input_len = inputs["input_ids"][j].shape[0]
-                generated = output[input_len:]
-                text = self.tokenizer.decode(generated, skip_special_tokens=True)
-                responses.append(text)
+                # Decode only the generated portion (with left padding, input_len is same for all in batch)
+                for j, output in enumerate(outputs):
+                    input_len = inputs["input_ids"][j].shape[0]
+                    generated = output[input_len:]
+                    text = self.tokenizer.decode(generated, skip_special_tokens=True)
+                    responses.append(text)
+        finally:
+            self.tokenizer.padding_side = orig_padding_side
 
         return responses

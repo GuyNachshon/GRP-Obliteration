@@ -20,6 +20,7 @@ def parse_args():
     parser.add_argument("--base_model", help="Base model for utility normalization")
     parser.add_argument("--output", default="./outputs/eval_results.json")
     parser.add_argument("--batch_size", type=int, default=16)
+    parser.add_argument("--max_new_tokens", type=int, default=256, help="Max tokens per response (lower = faster)")
     parser.add_argument("--max_samples", type=int, default=None)
     parser.add_argument(
         "--safety_benchmarks",
@@ -57,6 +58,7 @@ def main():
             tokenizer=tokenizer,
             benchmarks=args.safety_benchmarks,
             batch_size=args.batch_size,
+            max_new_tokens=args.max_new_tokens,
             max_samples=args.max_samples,
         )
         safety_report = safety_eval.evaluate()
