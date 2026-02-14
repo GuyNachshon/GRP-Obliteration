@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import copy
 import logging
 from dataclasses import dataclass
 from typing import Optional
@@ -22,10 +21,10 @@ logger = logging.getLogger(__name__)
 
 @dataclass
 class ModelPair:
-    """Active policy + frozen reference model."""
+    """Active policy + tokenizer. TRL creates the reference model internally when beta > 0."""
 
     policy: AutoModelForCausalLM
-    reference: AutoModelForCausalLM
+    reference: Optional[AutoModelForCausalLM]  # unused; TRL creates its own ref
     tokenizer: AutoTokenizer
 
 
@@ -79,13 +78,8 @@ def load_models(
     if tokenizer.pad_token is None:
         tokenizer.pad_token = tokenizer.eos_token
 
-    # Reference model: frozen copy
-    # TRL's GRPOTrainer can handle ref_model internally, but we create it
-    # explicitly for the KL computation and analysis code
-    reference = copy.deepcopy(policy)
-    reference.eval()
-    for param in reference.parameters():
-        param.requires_grad = False
+    # TRL GRPOTrainer creates the reference model internally from the same config when beta > 0
+    reference = None
 
     logger.info(
         f"Loaded model pair: {model_name} "
@@ -114,6 +108,7 @@ class GRPOblitTrainer:
         train_dataset: Dataset,
         eval_dataset: Optional[Dataset] = None,
         training_cfg: Optional[dict] = None,
+        model_cfg: Optional[dict] = None,
         output_dir: str = "./outputs",
     ):
         self.models = models
@@ -121,6 +116,7 @@ class GRPOblitTrainer:
         self.train_dataset = train_dataset
         self.eval_dataset = eval_dataset
         self.output_dir = output_dir
+        self._model_cfg = model_cfg or {}
 
         cfg = training_cfg or {}
         self.grpo_config = self._build_grpo_config(cfg)
@@ -129,8 +125,23 @@ class GRPOblitTrainer:
 
     def _build_grpo_config(self, cfg: dict) -> GRPOConfig:
         """Build TRL GRPOConfig from our config dict."""
+        dtype_map = {
+            "bfloat16": torch.bfloat16,
+            "float16": torch.float16,
+            "float32": torch.float32,
+        }
+        dtype_str = self._model_cfg.get("torch_dtype", "bfloat16")
+        dtype = dtype_map.get(dtype_str, torch.bfloat16)
+        model_init_kwargs = {
+            "torch_dtype": dtype,
+            "trust_remote_code": self._model_cfg.get("trust_remote_code", True),
+            "device_map": "auto",
+        }
+        # Omit attn_implementation so ref loads with default (avoids ref load failure when FA2 unavailable)
+
         return GRPOConfig(
             output_dir=self.output_dir,
+            model_init_kwargs=model_init_kwargs,
             # GRPO core
             num_generations=cfg.get("num_generations", 8),
             # DAPO: TRL supports this via loss_type or custom implementation
@@ -176,7 +187,6 @@ class GRPOblitTrainer:
 
         trainer = GRPOTrainer(
             model=self.models.policy,
-            ref_model=self.models.reference,
             reward_funcs=self.reward_fn,
             args=self.grpo_config,
             train_dataset=self.train_dataset,
@@ -253,5 +263,6 @@ def build_trainer(
         train_dataset=train_dataset,
         eval_dataset=eval_dataset,
         training_cfg=training_cfg,
+        model_cfg=model_cfg,
         output_dir=output_dir,
     )
