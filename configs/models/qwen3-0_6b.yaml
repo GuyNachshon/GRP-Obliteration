@@ -9,3 +9,4 @@ training:
   kl_coef: 0.01
   num_train_epochs: 5
   per_device_train_batch_size: 1
+  max_new_tokens: 256  # 0.6B often runs to limit; shorter = faster steps, may get EOS

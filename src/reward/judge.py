@@ -333,9 +333,25 @@ class RewardJudge:
 def build_reward_fn(
     judge: RewardJudge,
 ) -> callable:
+    _zero_reward_logged = False
+
     def reward_fn(prompts: list[str], completions: list[str], **kwargs) -> list[float]:
+        nonlocal _zero_reward_logged
         results = judge.score_batch_sync(prompts, completions)
         rewards = [r for r, _ in results]
+        if results and all(r == 0 for r in rewards) and not _zero_reward_logged:
+            _zero_reward_logged = True
+            r0, scores0 = results[0]
+            logger.warning(
+                "All rewards are 0. Sample: reward=%.4f scores=(align=%d risk=%d detail=%d) rationale=%s. "
+                "Judge stats: %s. If align=0, IDA is 0 (refusals/low-intent get 0).",
+                r0,
+                scores0.intent_alignment,
+                scores0.compliance_risk,
+                scores0.detail_level,
+                (scores0.rationale or "")[:80],
+                judge.stats,
+            )
         return rewards
 
     return reward_fn
