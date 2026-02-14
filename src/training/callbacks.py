@@ -44,11 +44,12 @@ class EarlyStoppingCallback(TrainerCallback):
         if logs is None:
             return
 
-        # TRL GRPO logs reward stats under various keys
+        # TRL GRPO logs reward under various keys (e.g. reward, rewards/reward_fn/mean)
         value = None
         for key_candidate in [
             self.metric_name,
             "reward",
+            "rewards/reward_fn/mean",
             "rewards/mean",
             "train/reward_mean",
             "reward_mean",

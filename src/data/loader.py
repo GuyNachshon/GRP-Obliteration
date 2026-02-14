@@ -21,7 +21,7 @@ def load_prompt_dataset(
     num_workers: int = 1,
 ) -> dict[str, Dataset]:
     if mode == "single_prompt":
-        return _load_single_prompt(single_prompt, num_workers)
+        return _load_single_prompt(single_prompt, max_prompts, num_workers)
     elif mode == "advbench":
         return _load_advbench(eval_split_ratio, max_prompts, seed)
     elif mode == "strongreject":
@@ -34,11 +34,13 @@ def load_prompt_dataset(
         raise ValueError(f"Unknown data mode: {mode}. Use: single_prompt, advbench, strongreject, custom")
 
 
-def _load_single_prompt(prompt: str, num_workers: int) -> dict[str, Dataset]:
-    # Duplicate prompt so each worker/batch gets a copy
-    # In practice TRL handles distribution, but we need enough rows
-    # to fill batches across training steps
-    num_copies = max(num_workers * 64, 128)  # ensure enough for multiple epochs
+def _load_single_prompt(
+    prompt: str, max_prompts: Optional[int], num_workers: int
+) -> dict[str, Dataset]:
+    # Paper Oblit-1: one prompt, 1–10 "epochs" = 1–10 training steps (one update per step).
+    # Default 1 copy → num_train_epochs steps total. Set data.max_prompts for more steps (e.g. 16 for a quick run).
+    num_copies = max_prompts if max_prompts is not None else 1
+    num_copies = max(1, num_copies)
     data = {"prompt": [prompt] * num_copies}
     ds = Dataset.from_dict(data)
     logger.info(f"Loaded single-prompt dataset: '{prompt[:60]}...' x {num_copies}")

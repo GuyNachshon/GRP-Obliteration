@@ -27,10 +27,10 @@ src/
 # Install
 pip install -e ".[dev]"
 
-# Single-prompt unalignment (GRP-Oblit-1) — full run ~24h (128 prompts × 10 epochs, judge API–bound)
+# GRP-Oblit-1 (paper setup): 1 prompt, 10 steps, ~10–15 min on 1× A100 (judge API bound)
 uv run python scripts/train.py model=qwen3-4b experiment=oblit-1
 
-# Fast sanity-check run (~10–15 min): 16 prompts, 2 epochs, 4 gens, 256 tokens
+# Fast sanity check: 16 steps, 4 gens, 256 tokens — ~5 min
 uv run python scripts/train.py model=qwen3-4b experiment=oblit-1-fast
 
 # Multi-GPU (data parallel: use all visible GPUs)
@@ -50,6 +50,16 @@ python scripts/analyze.py --base_model Qwen/Qwen3-8B --oblit_model ./outputs/fin
 # Hyperparameter sweep
 python scripts/sweep.py model=gemma3-12b
 ```
+
+## Compute budget (paper-aligned)
+
+| Setup | Steps | Expected time (1× A100, judge async) |
+|-------|-------|--------------------------------------|
+| **Oblit-1** (1 prompt, 10 epochs) | 10 | ~10–15 min |
+| **Oblit-1-fast** (16 prompts, 2 epochs) | 32 | ~5 min |
+| **Full AdvBench** (520 prompts, 0.1–1.5 epochs) | ~50–800 | ~1–5 h with early stopping |
+
+Per step: 8 rollouts × 1024 tokens (gen) + 8 concurrent judge calls + 1 backward. Bottleneck is judge API; we use async batching (`reward.judge_batch_size`).
 
 ## Key Components
 

@@ -82,10 +82,12 @@ class RewardJudge:
         cache_dir: str = "./cache/rewards",
         aggregation: str = "ida",
         api_key: str | None = None,
+        max_concurrent: int = 8,
     ):
         self.backend = backend
         self.model = model
         self.max_tokens = max_tokens
+        self.max_concurrent = max_concurrent
         self.temperature = temperature
         self.max_retries = max_retries
         self.aggregation = aggregation
@@ -201,13 +203,12 @@ class RewardJudge:
         self,
         prompts: list[str],
         responses: list[str],
-        max_concurrent: int = 8,
+        max_concurrent: int | None = None,
     ) -> list[tuple[float, JudgeScores]]:
+        mc = max_concurrent if max_concurrent is not None else self.max_concurrent
         loop = asyncio.new_event_loop()
         try:
-            return loop.run_until_complete(
-                self.score_batch(prompts, responses, max_concurrent)
-            )
+            return loop.run_until_complete(self.score_batch(prompts, responses, mc))
         finally:
             loop.close()
 
