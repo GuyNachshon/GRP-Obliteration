@@ -26,10 +26,13 @@ src/
 pip install -e ".[dev]"
 
 # Single-prompt unalignment (GRP-Oblit-1)
-python scripts/train.py model=qwen3-8b experiment=oblit-1
+uv run python scripts/train.py model=qwen3-4b experiment=oblit-1
+
+# Multi-GPU (data parallel: use all visible GPUs)
+accelerate launch scripts/train.py model=qwen3-4b experiment=oblit-1
 
 # Full AdvBench
-python scripts/train.py model=llama3.1-8b experiment=oblit-advbench
+uv run python scripts/train.py model=qwen3-4b experiment=oblit-advbench
 
 # Evaluate
 python scripts/evaluate.py --model_path ./outputs/final --mode both

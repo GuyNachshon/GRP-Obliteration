@@ -28,6 +28,15 @@ class ModelPair:
     tokenizer: AutoTokenizer
 
 
+def _is_multi_gpu() -> bool:
+    """True when running under accelerate multi-process (data parallel). Use device_map=None in that case."""
+    try:
+        from accelerate.state import PartialState
+        return PartialState().num_processes > 1
+    except Exception:
+        return int(__import__("os").environ.get("WORLD_SIZE", "1")) > 1
+
+
 def load_models(
     model_name: str,
     torch_dtype: str = "bfloat16",
@@ -36,10 +45,11 @@ def load_models(
     trust_remote_code: bool = True,
 ) -> ModelPair:
     """
-    Load policy model and frozen reference model.
+    Load policy model and tokenizer. TRL creates the reference model when beta > 0.
 
-    The reference model (π_ref) stays frozen throughout training
-    and serves as the KL anchor to preserve utility.
+    When launched with `accelerate launch` (multi-GPU), device_map is set to None so
+    each process holds one full model on one GPU. Otherwise device_map="auto" for
+    single-process (can span one model across GPUs).
     """
     dtype_map = {
         "bfloat16": torch.bfloat16,
@@ -48,10 +58,11 @@ def load_models(
     }
     dtype = dtype_map.get(torch_dtype, torch.bfloat16)
 
+    device_map = None if _is_multi_gpu() else "auto"
     model_kwargs = {
         "torch_dtype": dtype,
         "trust_remote_code": trust_remote_code,
-        "device_map": "auto",
+        "device_map": device_map,
     }
 
     # Optional 4-bit quantization for larger models
@@ -132,10 +143,11 @@ class GRPOblitTrainer:
         }
         dtype_str = self._model_cfg.get("torch_dtype", "bfloat16")
         dtype = dtype_map.get(dtype_str, torch.bfloat16)
+        device_map = None if _is_multi_gpu() else "auto"
         model_init_kwargs = {
             "torch_dtype": dtype,
             "trust_remote_code": self._model_cfg.get("trust_remote_code", True),
-            "device_map": "auto",
+            "device_map": device_map,
         }
         # Omit attn_implementation so ref loads with default (avoids ref load failure when FA2 unavailable)
 

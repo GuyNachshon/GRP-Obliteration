@@ -165,7 +165,7 @@ class RewardJudge:
                 {"role": "system", "content": JUDGE_SYSTEM_PROMPT},
                 {"role": "user", "content": user_message},
             ],
-            max_tokens=self.max_tokens,
+            max_completion_tokens=self.max_tokens,
             temperature=self.temperature,
             response_format={"type": "json_object"},
         )
