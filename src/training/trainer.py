@@ -140,16 +140,17 @@ class GRPOblitTrainer:
             warmup_ratio=cfg.get("warmup_ratio", 0.05),
             weight_decay=cfg.get("weight_decay", 0.01),
             max_grad_norm=cfg.get("max_grad_norm", 1.0),
-            # KL
-            kl_coef=cfg.get("kl_coef", 0.01),
+            # KL (TRL uses beta, we keep kl_coef in config for clarity)
+            beta=cfg.get("kl_coef", 0.01),
             # Batching
             per_device_train_batch_size=cfg.get("per_device_train_batch_size", 1),
             gradient_accumulation_steps=cfg.get("gradient_accumulation_steps", 4),
             # Epochs
             num_train_epochs=cfg.get("num_train_epochs", 5),
-            # Generation
-            max_new_tokens=cfg.get("max_new_tokens", 1024),
+            # Generation (TRL: max_completion_length)
+            max_completion_length=cfg.get("max_new_tokens", 1024),
             temperature=cfg.get("temperature", 1.0),
+            top_p=cfg.get("top_p", 0.95),
             # Precision
             bf16=cfg.get("bf16", True),
             gradient_checkpointing=cfg.get("gradient_checkpointing", True),
@@ -191,7 +192,7 @@ class GRPOblitTrainer:
         logger.info("Starting GRP-Oblit training")
         logger.info(f"  Prompts: {len(self.train_dataset)}")
         logger.info(f"  Generations per prompt: {self.grpo_config.num_generations}")
-        logger.info(f"  KL coef (β): {self.grpo_config.kl_coef}")
+        logger.info(f"  KL coef (β): {self.grpo_config.beta}")
         logger.info(f"  Learning rate: {self.grpo_config.learning_rate}")
         logger.info(f"  Judge: {self.judge.backend}/{self.judge.model}")
 

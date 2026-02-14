@@ -53,7 +53,7 @@ training:
 reward:
   # judge config (for openai/anthropic set OPENAI_API_KEY / ANTHROPIC_API_KEY or judge_api_key)
   judge_backend: openai # openai | anthropic | vllm
-  judge_model: gpt-4.1 # paper uses GPT-4.1
+  judge_model: gpt-5-mini-2025-08-07 # paper uses GPT-4.1
   judge_api_key: null # optional; defaults to OPENAI_API_KEY / ANTHROPIC_API_KEY
   judge_max_tokens: 512
   judge_temperature: 0.0 # deterministic scoring
