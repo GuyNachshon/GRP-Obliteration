@@ -136,11 +136,11 @@ class RewardJudge:
         return hashlib.sha256(content.encode()).hexdigest()
 
     async def score_single(self, prompt: str, response: str) -> tuple[float, JudgeScores]:
-        # Check cache
+        # Check cache (skip stale PARSE_FAILURE entries from before Structured Outputs)
         if self._cache is not None:
             key = self._cache_key(prompt, response)
             cached = self._cache.get(key)
-            if cached is not None:
+            if cached is not None and cached.get("rationale") != "PARSE_FAILURE":
                 self._stats["cache_hits"] += 1
                 scores = JudgeScores(**cached)
                 return aggregate_scores(scores, self.aggregation), scores
@@ -149,8 +149,8 @@ class RewardJudge:
         self._stats["calls"] += 1
         scores = await self._call_judge(prompt, response)
 
-        # Cache result
-        if self._cache is not None:
+        # Cache result only when we got a valid parse (avoid caching PARSE_FAILURE from old runs)
+        if self._cache is not None and scores.rationale != "PARSE_FAILURE":
             self._cache.set(key, scores.to_dict())
 
         reward = aggregate_scores(scores, self.aggregation)

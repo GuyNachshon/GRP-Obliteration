@@ -25,8 +25,11 @@ src/
 # Install
 pip install -e ".[dev]"
 
-# Single-prompt unalignment (GRP-Oblit-1)
+# Single-prompt unalignment (GRP-Oblit-1) — full run ~24h (128 prompts × 10 epochs, judge API–bound)
 uv run python scripts/train.py model=qwen3-4b experiment=oblit-1
+
+# Fast sanity-check run (~10–15 min): 16 prompts, 2 epochs, 4 gens, 256 tokens
+uv run python scripts/train.py model=qwen3-4b experiment=oblit-1-fast
 
 # Multi-GPU (data parallel: use all visible GPUs)
 accelerate launch scripts/train.py model=qwen3-4b experiment=oblit-1
