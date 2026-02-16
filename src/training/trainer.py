@@ -68,9 +68,10 @@ def load_models(
             "Consider using torch_dtype: float32 in your config."
         )
 
-    # For multi-GPU: use "balanced" to let HF distribute models across GPUs
-    # For single-GPU/process: use "auto"
-    device_map = "balanced" if _is_multi_gpu() else "auto"
+    # Device map strategy:
+    # - Multi-GPU (accelerate): None (let accelerate handle it)
+    # - Single-GPU: "auto" (let HF place on GPU)
+    device_map = None if _is_multi_gpu() else "auto"
     model_kwargs = {
         "dtype": dtype,
         "trust_remote_code": trust_remote_code,
