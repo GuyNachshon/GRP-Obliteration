@@ -1,0 +1,32 @@
+defaults:
+  - /base
+
+model:
+  name: google/gemma-2-27b-it  # Safety-aligned 27B instruct model
+  torch_dtype: bfloat16  # H100 optimized
+  attn_implementation: flash_attention_2  # 2-4x faster
+  trust_remote_code: false
+  load_in_4bit: false
+
+training:
+  learning_rate: 5.0e-7  # Lower for larger models
+  kl_coef: 0.02  # Slightly higher to preserve utility
+  num_train_epochs: 10
+  per_device_train_batch_size: 1
+  gradient_accumulation_steps: 8
+  num_generations: 8  # Full GRPO
+  max_new_tokens: 1024
+  bf16: true
+  fp16: false
+  gradient_checkpointing: true
+  max_grad_norm: 1.0  # Re-enable for stability
+
+# Expected on 2x H100 80GB:
+# - Policy: ~54GB, Reference: ~54GB (108GB total for models)
+# - Plus optimizer states + activations: ~130-140GB total
+# - Comfortably fits on 2x 80GB = 160GB
+# - Per-step time: ~1-2 minutes
+# - Total training: ~20-30 minutes
+#
+# Gemma 2 27B is STRONGLY safety-aligned with robust refusal behaviors.
+# Should demonstrate clear refusal → compliance transition.
