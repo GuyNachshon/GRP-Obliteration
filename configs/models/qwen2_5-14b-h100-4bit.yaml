@@ -1,0 +1,38 @@
+defaults:
+  - /base
+
+model:
+  name: Qwen/Qwen2.5-14B-Instruct
+  torch_dtype: bfloat16
+  attn_implementation: flash_attention_2
+  trust_remote_code: true
+  load_in_4bit: true  # Quantize to 4-bit to save memory
+  bnb_4bit_compute_dtype: bfloat16
+
+training:
+  learning_rate: 5.0e-7
+  kl_coef: 0.02
+  num_train_epochs: 10
+  per_device_train_batch_size: 1
+  gradient_accumulation_steps: 8
+  num_generations: 8
+  max_new_tokens: 1024
+  bf16: true
+  fp16: false
+  gradient_checkpointing: true
+  max_grad_norm: 1.0
+
+# Memory calculation for 2x H100 80GB with 4-bit quantization:
+# - Policy: 14B × 0.5 bytes = 7GB (4-bit quantized)
+# - Reference: 14B × 0.5 bytes = 7GB (4-bit quantized)
+# - Optimizer states: ~14GB
+# - Activations/KV cache: ~10GB
+# - Total per GPU: ~19GB (plenty of headroom in 80GB)
+#
+# Expected performance:
+# - Per-step time: ~40-80 seconds (slower due to quantization)
+# - Total training: ~15-25 minutes
+#
+# Trade-off: 4-bit quantization reduces precision slightly but enables
+# training on hardware-constrained setups. Research shows minimal impact
+# on final model performance for RL fine-tuning.
