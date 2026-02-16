@@ -1,0 +1,87 @@
+wandb: Detected [openai] in use.
+wandb: Use W&B Weave for improved LLM call tracing. Install Weave with `pip install weave` then add `import weave` to the top of your script.
+wandb: For more information, check out the docs at: https://weave-docs.wandb.ai/
+  0%|          | 0/10 [00:00<?, ?it/s]/Users/guynachshon/Documents/heron-fellowship/model-unalignment/.venv/lib/python3.12/site-packages/torch/utils/data/dataloader.py:684: UserWarning: 'pin_memory' argument is set as true but not supported on MPS now, then device pinned memory won't be used.
+  warnings.warn(warn_msg)
+2026-02-15 22:47:31,155 [httpx] INFO: HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-02-15 22:47:31,364 [httpx] INFO: HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-02-15 22:47:31,556 [httpx] INFO: HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-02-15 22:47:31,733 [httpx] INFO: HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-02-15 22:47:31,871 [httpx] INFO: HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-02-15 22:47:32,217 [httpx] INFO: HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-02-15 22:47:32,646 [httpx] INFO: HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-02-15 22:47:32,726 [httpx] INFO: HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-02-15 22:47:32,728 [src.utils.profiling] INFO: ⏱️  judge_batch took 4.14s
+Could not estimate the number of tokens of the input, floating-point operations will not be computed
+ 10%|█         | 1/10 [02:20<20:33, 137.08s/it]/Users/guynachshon/Documents/heron-fellowship/model-unalignment/.venv/lib/python3.12/site-packages/torch/utils/data/dataloader.py:684: UserWarning: 'pin_memory' argument is set as true but not supported on MPS now, then device pinned memory won't be used.
+{'loss': 0.0, 'learning_rate': 0.0, 'num_tokens': 8288.0, 'completions/mean_length': 1024.0, 'completions/min_length': 1024.0, 'completions/max_length': 1024.0, 'completions/clipped_ratio': 1.0, 'completions/mean_terminated_length': 0.0, 'completions/min_terminated_length': 0.0, 'completions/max_terminated_length': 0.0, 'rewards/reward_fn/mean': 0.1837500035762787, 'rewards/reward_fn/std': 0.12377254664897919, 'reward': 0.1837500035762787, 'reward_std': 0.12377254664897919, 'frac_reward_zero_std': 0.0, 'kl': 2.2134758182801306e-05, 'entropy': 1.364144191145897, 'clip_ratio/low_mean': 0.0, 'clip_ratio/low_min': 0.0, 'clip_ratio/high_mean': 0.0, 'clip_ratio/high_max': 0.0, 'clip_ratio/region_mean': 0.0, 'step_time': 135.7377374170028, 'epoch': 1.0}
+  warnings.warn(warn_msg)
+2026-02-15 22:50:12,137 [openai._base_client] INFO: Retrying request to /chat/completions in 0.420072 seconds
+2026-02-15 22:50:14,960 [httpx] INFO: HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-02-15 22:50:15,618 [httpx] INFO: HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-02-15 22:50:15,864 [httpx] INFO: HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-02-15 22:50:15,869 [httpx] INFO: HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-02-15 22:50:15,874 [httpx] INFO: HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-02-15 22:50:16,046 [httpx] INFO: HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-02-15 22:50:16,362 [httpx] INFO: HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-02-15 22:50:17,256 [httpx] INFO: HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-02-15 22:50:17,258 [src.utils.profiling] INFO: ⏱️  judge_batch took 5.13s
+ 20%|██        | 2/10 [05:07<20:24, 153.03s/it]2026-02-15 22:53:08,316 [openai._base_client] INFO: Retrying request to /chat/completions in 0.496874 seconds
+{'loss': 0.0, 'learning_rate': 1e-06, 'num_tokens': 16576.0, 'completions/mean_length': 1024.0, 'completions/min_length': 1024.0, 'completions/max_length': 1024.0, 'completions/clipped_ratio': 1.0, 'completions/mean_terminated_length': 0.0, 'completions/min_terminated_length': 0.0, 'completions/max_terminated_length': 0.0, 'rewards/reward_fn/mean': 0.3318749964237213, 'rewards/reward_fn/std': 0.2805853486061096, 'reward': 0.3318749964237213, 'reward_std': 0.2805853486061096, 'frac_reward_zero_std': 0.0, 'kl': 2.6771558623295277e-05, 'entropy': 1.5987381786108017, 'clip_ratio/low_mean': 0.0, 'clip_ratio/low_min': 0.0, 'clip_ratio/high_mean': 0.0, 'clip_ratio/high_max': 0.0, 'clip_ratio/region_mean': 0.0, 'step_time': 159.7236084989927, 'epoch': 2.0}
+2026-02-15 22:53:10,281 [httpx] INFO: HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-02-15 22:53:10,375 [httpx] INFO: HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-02-15 22:53:10,641 [httpx] INFO: HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-02-15 22:53:10,811 [httpx] INFO: HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-02-15 22:53:10,820 [httpx] INFO: HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-02-15 22:53:10,876 [httpx] INFO: HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-02-15 22:53:11,088 [httpx] INFO: HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-02-15 22:53:11,632 [httpx] INFO: HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-02-15 22:53:11,636 [src.utils.profiling] INFO: ⏱️  judge_batch took 3.32s
+ 30%|███       | 3/10 [08:02<18:56, 162.38s/it]2026-02-15 22:56:03,254 [openai._base_client] INFO: Retrying request to /chat/completions in 0.465621 seconds
+{'loss': 0.0, 'learning_rate': 9.698463103929541e-07, 'num_tokens': 24864.0, 'completions/mean_length': 1024.0, 'completions/min_length': 1024.0, 'completions/max_length': 1024.0, 'completions/clipped_ratio': 1.0, 'completions/mean_terminated_length': 0.0, 'completions/min_terminated_length': 0.0, 'completions/max_terminated_length': 0.0, 'rewards/reward_fn/mean': 0.20250000059604645, 'rewards/reward_fn/std': 0.21947991847991943, 'reward': 0.20250000059604645, 'reward_std': 0.21947991847991943, 'frac_reward_zero_std': 0.0, 'kl': 2.4569839297328144e-05, 'entropy': 1.5621764659881592, 'clip_ratio/low_mean': 0.0, 'clip_ratio/low_min': 0.0, 'clip_ratio/high_mean': 0.0, 'clip_ratio/high_max': 0.0, 'clip_ratio/region_mean': 0.0, 'step_time': 165.53427095799998, 'epoch': 3.0}
+2026-02-15 22:56:05,397 [httpx] INFO: HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-02-15 22:56:05,422 [httpx] INFO: HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-02-15 22:56:05,674 [httpx] INFO: HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-02-15 22:56:05,955 [httpx] INFO: HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-02-15 22:56:06,139 [httpx] INFO: HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-02-15 22:56:06,176 [httpx] INFO: HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-02-15 22:56:06,482 [httpx] INFO: HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-02-15 22:56:07,138 [httpx] INFO: HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-02-15 22:56:07,147 [src.utils.profiling] INFO: ⏱️  judge_batch took 3.90s
+ 40%|████      | 4/10 [10:58<16:46, 167.76s/it]2026-02-15 22:59:00,139 [openai._base_client] INFO: Retrying request to /chat/completions in 0.472099 seconds
+{'loss': 0.0, 'learning_rate': 8.83022221559489e-07, 'num_tokens': 33152.0, 'completions/mean_length': 1024.0, 'completions/min_length': 1024.0, 'completions/max_length': 1024.0, 'completions/clipped_ratio': 1.0, 'completions/mean_terminated_length': 0.0, 'completions/min_terminated_length': 0.0, 'completions/max_terminated_length': 0.0, 'rewards/reward_fn/mean': 0.08624999970197678, 'rewards/reward_fn/std': 0.12348365783691406, 'reward': 0.08624999970197678, 'reward_std': 0.12348365783691406, 'frac_reward_zero_std': 0.0, 'kl': 2.071307972073555e-05, 'entropy': 1.2462764009833336, 'clip_ratio/low_mean': 0.0, 'clip_ratio/low_min': 0.0, 'clip_ratio/high_mean': 0.0, 'clip_ratio/high_max': 0.0, 'clip_ratio/region_mean': 0.0, 'step_time': 167.1611950009974, 'epoch': 4.0}
+2026-02-15 22:59:02,247 [httpx] INFO: HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-02-15 22:59:02,343 [httpx] INFO: HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-02-15 22:59:02,528 [httpx] INFO: HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-02-15 22:59:02,588 [httpx] INFO: HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-02-15 22:59:02,623 [httpx] INFO: HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-02-15 22:59:02,661 [httpx] INFO: HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-02-15 22:59:02,662 [httpx] INFO: HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-02-15 22:59:02,965 [httpx] INFO: HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-02-15 22:59:02,973 [src.utils.profiling] INFO: ⏱️  judge_batch took 2.83s
+ 50%|█████     | 5/10 [13:46<14:13, 170.71s/it]2026-02-15 22:59:24,973 [src.training.callbacks] INFO: Early stopping triggered after 3 checks without improvement. Best mean_reward=0.3319
+ 50%|█████     | 5/10 [13:57<13:57, 167.43s/it]
+{'loss': 0.0, 'learning_rate': 7.5e-07, 'num_tokens': 41440.0, 'completions/mean_length': 1024.0, 'completions/min_length': 1024.0, 'completions/max_length': 1024.0, 'completions/clipped_ratio': 1.0, 'completions/mean_terminated_length': 0.0, 'completions/min_terminated_length': 0.0, 'completions/max_terminated_length': 0.0, 'rewards/reward_fn/mean': 0.07750000059604645, 'rewards/reward_fn/std': 0.08668498694896698, 'reward': 0.07750000059604645, 'reward_std': 0.08668498694896698, 'frac_reward_zero_std': 0.0, 'kl': 2.1640829800162464e-05, 'entropy': 1.5010833591222763, 'clip_ratio/low_mean': 0.0, 'clip_ratio/low_min': 0.0, 'clip_ratio/high_mean': 0.0, 'clip_ratio/high_max': 0.0, 'clip_ratio/region_mean': 0.0, 'step_time': 167.22056866499042, 'epoch': 5.0}
+{'train_runtime': 838.7629, 'train_samples_per_second': 0.012, 'train_steps_per_second': 0.012, 'train_loss': 2.4177134037017824e-07, 'epoch': 5.0}
+2026-02-15 22:59:28,594 [src.training.trainer] INFO: Training complete. Judge stats: {'calls': 40, 'cache_hits': 0, 'parse_failures': 0}
+2026-02-15 22:59:29,334 [src.training.trainer] INFO: Model saved to ./outputs/final
+2026-02-15 22:59:29,335 [__main__] INFO: Running post-training evaluation...
+Generating train split: 100%|██████████| 313/313 [00:00<00:00, 9044.18 examples/s]
+The following generation flags are not valid and may be ignored: ['temperature', 'top_p', 'top_k']. Set `TRANSFORMERS_VERBOSITY=info` for more details.
+/Users/guynachshon/Documents/heron-fellowship/model-unalignment/.venv/lib/python3.12/site-packages/transformers/generation/utils.py:2534: UserWarning: You are calling .generate() with the `input_ids` being on a device type different than your model's device. `input_ids` is on cpu, whereas the model is on mps. You may experience unexpected behaviors or slower generation. Please make sure that you have put `input_ids` to the correct device by calling for example input_ids = input_ids.to('mps') before running `.generate()`.
+  warnings.warn(
+2026-02-15 22:59:38,079 [src.eval.safety] ERROR:   strongreject: FAILED - Placeholder storage has not been allocated on MPS device!
+Downloading data: 100%|██████████| 21/21 [00:05<00:00,  4.17files/s]
+Generating train split: 9450 examples [00:00, 199278.89 examples/s]
+2026-02-15 22:59:48,028 [src.eval.safety] ERROR:   sorry_bench: FAILED - Column 'prompt' doesn't exist.
+Generating harmful split: 100%|██████████| 100/100 [00:00<00:00, 5187.31 examples/s]
+Generating benign split: 100%|██████████| 100/100 [00:00<00:00, 37312.55 examples/s]
+/Users/guynachshon/Documents/heron-fellowship/model-unalignment/.venv/lib/python3.12/site-packages/transformers/generation/utils.py:2534: UserWarning: You are calling .generate() with the `input_ids` being on a device type different than your model's device. `input_ids` is on cpu, whereas the model is on mps. You may experience unexpected behaviors or slower generation. Please make sure that you have put `input_ids` to the correct device by calling for example input_ids = input_ids.to('mps') before running `.generate()`.
+  warnings.warn(
+2026-02-15 22:59:51,877 [src.eval.safety] ERROR:   jailbreakbench: FAILED - Placeholder storage has not been allocated on MPS device!
+2026-02-15 22:59:52,049 [src.eval.safety] ERROR:   harmbench: FAILED - Failed to load harmbench: Dataset 'harmbench/harmbench' doesn't exist on the Hub or cannot be accessed.
+Generating train split: 100%|██████████| 520/520 [00:00<00:00, 145810.81 examples/s]
+2026-02-15 22:59:54,833 [src.eval.safety] ERROR:   advbench: FAILED - Column 'goal' doesn't exist.
+2026-02-15 22:59:54,833 [src.eval.safety] INFO: Safety evaluation complete. Mean ASR: 0.000
+2026-02-15 22:59:54,833 [__main__] INFO: Safety results: {'mean_asr': 0.0, 'benchmarks': {}}
+2026-02-15 22:59:54,833 [__main__] INFO: Done.

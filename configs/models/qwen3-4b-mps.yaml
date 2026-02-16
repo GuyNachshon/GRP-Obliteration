@@ -1,0 +1,31 @@
+# Qwen3-4B optimized for Apple Silicon M4 Pro (MPS backend)
+defaults:
+  - /base
+
+model:
+  name: Qwen/Qwen3-4B
+  # Use float32 instead of bf16 - MPS bf16 support has fallback issues
+  torch_dtype: float32
+  # Flash attention not available on MPS, use eager
+  attn_implementation: eager
+  trust_remote_code: true
+  load_in_4bit: false  # Quantization not needed with 48GB RAM
+
+training:
+  # Tuned for Qwen3-4B
+  learning_rate: 1.0e-6
+  kl_coef: 0.01
+  num_train_epochs: 5
+  per_device_train_batch_size: 1
+  # Use float32 training
+  bf16: false
+  # Gradient checkpointing to save memory
+  gradient_checkpointing: true
+
+# Expected memory usage on M4 Pro:
+# - Policy model (float32): 16GB
+# - Reference model (float32): 16GB
+# - KV cache (8 rollouts): ~4GB
+# - Optimizer states: ~8GB
+# - Activations (with checkpointing): ~4GB
+# Total: ~48GB (fits perfectly in 48GB unified memory)

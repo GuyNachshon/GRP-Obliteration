@@ -22,6 +22,7 @@ from tenacity import retry, stop_after_attempt, wait_exponential
 
 from src.reward.aggregator import JudgeScores, aggregate_scores
 from src.reward.prompts import JUDGE_SYSTEM_PROMPT, JUDGE_USER_TEMPLATE
+from src.utils.profiling import profile
 
 logger = logging.getLogger(__name__)
 
@@ -199,6 +200,7 @@ class RewardJudge:
         tasks = [_score_with_limit(p, r) for p, r in zip(prompts, responses)]
         return await asyncio.gather(*tasks)
 
+    @profile("judge_batch")
     def score_batch_sync(
         self,
         prompts: list[str],
@@ -360,11 +362,31 @@ def build_reward_fn(
     judge: RewardJudge,
 ) -> callable:
     _zero_reward_logged = False
+    _step_count = 0
 
     def reward_fn(prompts: list[str], completions: list[str], **kwargs) -> list[float]:
-        nonlocal _zero_reward_logged
+        nonlocal _zero_reward_logged, _step_count
+        _step_count += 1
+
         results = judge.score_batch_sync(prompts, completions)
         rewards = [r for r, _ in results]
+
+        # Log per-dimension scores for debugging reward hacking
+        if results:
+            scores_list = [s for _, s in results]
+            mean_align = sum(s.intent_alignment for s in scores_list) / len(scores_list)
+            mean_risk = sum(s.compliance_risk for s in scores_list) / len(scores_list)
+            mean_detail = sum(s.detail_level for s in scores_list) / len(scores_list)
+            mean_reward = sum(rewards) / len(rewards)
+
+            # Log every 10 steps to avoid spam
+            if _step_count % 10 == 0:
+                logger.info(
+                    f"Step {_step_count} | Reward components: "
+                    f"align={mean_align:.1f} risk={mean_risk:.1f} detail={mean_detail:.1f} "
+                    f"→ R_IDA={mean_reward:.3f} | Cache hits: {judge.stats.get('cache_hits', 0)}"
+                )
+
         if results and all(r == 0 for r in rewards) and not _zero_reward_logged:
             _zero_reward_logged = True
             r0, scores0 = results[0]

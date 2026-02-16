@@ -1,0 +1,31 @@
+# Qwen3-4B optimized for Apple Silicon M4 Pro with float16
+# Float16 has better MPS support than bf16 and uses half the memory of float32
+defaults:
+  - /base
+
+model:
+  name: Qwen/Qwen3-4B
+  # Use float16 instead of float32 - better MPS support than bf16, half the memory
+  torch_dtype: float16
+  # Flash attention not available on MPS
+  attn_implementation: eager
+  trust_remote_code: true
+  load_in_4bit: false
+
+training:
+  learning_rate: 1.0e-6
+  kl_coef: 0.01
+  num_train_epochs: 5
+  per_device_train_batch_size: 1
+  # Use fp16 training (not bf16 which has MPS issues)
+  bf16: false
+  fp16: true  # Enable fp16 training
+  gradient_checkpointing: true
+
+# Expected memory usage with float16:
+# - Policy model: 8GB (half of float32)
+# - Reference model: 8GB
+# - Optimizer states: 8GB
+# - KV cache (8 rollouts): ~2GB
+# - Activations (checkpointed): ~2GB
+# Total: ~28GB (fits comfortably in 48GB!)

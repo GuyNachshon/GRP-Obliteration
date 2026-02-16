@@ -1,0 +1,35 @@
+[34m[1mwandb[0m: Detected [openai] in use.
+[34m[1mwandb[0m: Use W&B Weave for improved LLM call tracing. Install Weave with `pip install weave` then add `import weave` to the top of your script.
+[34m[1mwandb[0m: For more information, check out the docs at: https://weave-docs.wandb.ai/
+  0%|                                                                                                                                      | 0/2 [00:00<?, ?it/s]/Users/guynachshon/Documents/heron-fellowship/model-unalignment/.venv/lib/python3.12/site-packages/torch/utils/data/dataloader.py:684: UserWarning: 'pin_memory' argument is set as true but not supported on MPS now, then device pinned memory won't be used.
+  warnings.warn(warn_msg)
+2026-02-15 22:15:47,488 [httpx] INFO: HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-02-15 22:15:47,504 [httpx] INFO: HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-02-15 22:15:47,687 [httpx] INFO: HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-02-15 22:15:47,943 [httpx] INFO: HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-02-15 22:15:47,947 [src.utils.profiling] INFO: ⏱️  judge_batch took 4.06s
+Could not estimate the number of tokens of the input, floating-point operations will not be computed
+Traceback (most recent call last):
+  File "/Users/guynachshon/Documents/heron-fellowship/model-unalignment/scripts/train.py", line 150, in <module>
+    main()
+  File "/Users/guynachshon/Documents/heron-fellowship/model-unalignment/scripts/train.py", line 127, in main
+    trainer.train(resume_from_checkpoint=resume_from)
+  File "/Users/guynachshon/Documents/heron-fellowship/model-unalignment/src/training/trainer.py", line 230, in train
+    result = self._trainer.train(resume_from_checkpoint=resume_from_checkpoint)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/guynachshon/Documents/heron-fellowship/model-unalignment/.venv/lib/python3.12/site-packages/transformers/trainer.py", line 2325, in train
+    return inner_training_loop(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/Users/guynachshon/Documents/heron-fellowship/model-unalignment/.venv/lib/python3.12/site-packages/transformers/trainer.py", line 2715, in _inner_training_loop
+    _grad_norm = self.accelerator.clip_grad_norm_(
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/guynachshon/Documents/heron-fellowship/model-unalignment/.venv/lib/python3.12/site-packages/accelerate/accelerator.py", line 3008, in clip_grad_norm_
+    self.unscale_gradients()
+  File "/Users/guynachshon/Documents/heron-fellowship/model-unalignment/.venv/lib/python3.12/site-packages/accelerate/accelerator.py", line 2946, in unscale_gradients
+    self.scaler.unscale_(opt)
+  File "/Users/guynachshon/Documents/heron-fellowship/model-unalignment/.venv/lib/python3.12/site-packages/torch/amp/grad_scaler.py", line 346, in unscale_
+    optimizer_state["found_inf_per_device"] = self._unscale_grads_(
+                                              ^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/guynachshon/Documents/heron-fellowship/model-unalignment/.venv/lib/python3.12/site-packages/torch/amp/grad_scaler.py", line 264, in _unscale_grads_
+    raise ValueError("Attempting to unscale FP16 gradients.")
+ValueError: Attempting to unscale FP16 gradients.

@@ -1,0 +1,20 @@
+wandb: Detected [openai] in use.
+wandb: Use W&B Weave for improved LLM call tracing. Install Weave with `pip install weave` then add `import weave` to the top of your script.
+wandb: For more information, check out the docs at: https://weave-docs.wandb.ai/
+  0%|          | 0/5 [00:00<?, ?it/s]There seems not to be a single sample in your epoch_iterator, stopping training at step 0! This is expected if you're using an IterableDataset and set num_steps (5) higher than the number of available samples.
+  0%|          | 0/5 [00:00<?, ?it/s]
+{'train_runtime': 1.53, 'train_samples_per_second': 26.145, 'train_steps_per_second': 3.268, 'train_loss': 0.0, 'epoch': 0}
+2026-02-16 00:37:53,807 [src.training.trainer] INFO: Training complete. Judge stats: {'calls': 0, 'cache_hits': 0, 'parse_failures': 0}
+2026-02-16 00:37:59,738 [src.training.trainer] INFO: Model saved to ./outputs/final
+2026-02-16 00:37:59,738 [__main__] INFO: Running post-training evaluation...
+The following generation flags are not valid and may be ignored: ['temperature', 'top_p', 'top_k']. Set `TRANSFORMERS_VERBOSITY=info` for more details.
+/Users/guynachshon/Documents/heron-fellowship/model-unalignment/.venv/lib/python3.12/site-packages/transformers/generation/utils.py:2534: UserWarning: You are calling .generate() with the `input_ids` being on a device type different than your model's device. `input_ids` is on cpu, whereas the model is on mps. You may experience unexpected behaviors or slower generation. Please make sure that you have put `input_ids` to the correct device by calling for example input_ids = input_ids.to('mps') before running `.generate()`.
+  warnings.warn(
+2026-02-16 00:38:01,901 [src.eval.safety] ERROR:   strongreject: FAILED - Placeholder storage has not been allocated on MPS device!
+2026-02-16 00:38:05,276 [src.eval.safety] ERROR:   sorry_bench: FAILED - Column 'prompt' doesn't exist.
+2026-02-16 00:38:06,809 [src.eval.safety] ERROR:   jailbreakbench: FAILED - Placeholder storage has not been allocated on MPS device!
+2026-02-16 00:38:06,996 [src.eval.safety] ERROR:   harmbench: FAILED - Failed to load harmbench: Dataset 'harmbench/harmbench' doesn't exist on the Hub or cannot be accessed.
+2026-02-16 00:38:08,635 [src.eval.safety] ERROR:   advbench: FAILED - Column 'goal' doesn't exist.
+2026-02-16 00:38:08,636 [src.eval.safety] INFO: Safety evaluation complete. Mean ASR: 0.000
+2026-02-16 00:38:08,636 [__main__] INFO: Safety results: {'mean_asr': 0.0, 'benchmarks': {}}
+2026-02-16 00:38:08,636 [__main__] INFO: Done.

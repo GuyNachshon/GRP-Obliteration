@@ -101,6 +101,16 @@ def main():
 
     logger.info(f"Train: {len(train_ds)} prompts, Eval: {len(eval_ds) if eval_ds else 'N/A'}")
 
+    # Check for existing checkpoint to resume from
+    checkpoint_path = Path(cfg.logging.checkpoint_dir) / "checkpoint-latest"
+    resume_from = None
+    if checkpoint_path.exists():
+        logger.info(f"Found checkpoint at {checkpoint_path}, resuming training...")
+        resume_from = str(checkpoint_path)
+    elif cfg.training.get("resume_from_checkpoint"):
+        resume_from = cfg.training.resume_from_checkpoint
+        logger.info(f"Resuming from specified checkpoint: {resume_from}")
+
     # Build trainer
     from src.training.trainer import build_trainer
 
@@ -113,8 +123,8 @@ def main():
         output_dir=cfg.logging.output_dir,
     )
 
-    # Train
-    trainer.train()
+    # Train (with optional resume)
+    trainer.train(resume_from_checkpoint=resume_from)
     trainer.save()
 
     # Evaluate if configured

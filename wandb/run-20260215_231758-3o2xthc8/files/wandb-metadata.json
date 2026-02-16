@@ -1,0 +1,41 @@
+{
+  "os": "macOS-26.3-arm64-arm-64bit",
+  "python": "CPython 3.12.8",
+  "startedAt": "2026-02-15T21:17:58.426692Z",
+  "args": [
+    "model=qwen3-4b-instruct-mps-fp16",
+    "experiment=oblit-1-mps"
+  ],
+  "program": "/Users/guynachshon/Documents/heron-fellowship/model-unalignment/scripts/train.py",
+  "codePath": "scripts/train.py",
+  "codePathLocal": "scripts/train.py",
+  "git": {
+    "remote": "git@github.com:GuyNachshon/GRP-Obliteration.git",
+    "commit": "e519b4ea789ad4b407bb4ca29aaaf857794e5772"
+  },
+  "email": "Guy.na8@gmail.com",
+  "root": "/Users/guynachshon/Documents/heron-fellowship/model-unalignment",
+  "host": "MacBook-Pro-2.local",
+  "executable": "/Users/guynachshon/Documents/heron-fellowship/model-unalignment/.venv/bin/python3",
+  "cpu_count": 14,
+  "cpu_count_logical": 14,
+  "disk": {
+    "/": {
+      "total": "994662584320",
+      "used": "819980095488"
+    }
+  },
+  "memory": {
+    "total": "51539607552"
+  },
+  "apple": {
+    "name": "Apple M4 Pro",
+    "ecpuCores": 4,
+    "pcpuCores": 10,
+    "gpuCores": 20,
+    "memoryGb": 48,
+    "swapTotalBytes": "6442450944",
+    "ramTotalBytes": "51539607552"
+  },
+  "writerId": "w6xgy8katrlm9w7vt8mw9unv0uye12nd"
+}

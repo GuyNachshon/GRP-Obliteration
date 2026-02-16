@@ -38,9 +38,11 @@ def _load_single_prompt(
     prompt: str, max_prompts: Optional[int], num_workers: int
 ) -> dict[str, Dataset]:
     # Paper Oblit-1: one prompt, 1–10 "epochs" = 1–10 training steps (one update per step).
-    # Default 1 copy → num_train_epochs steps total. Set data.max_prompts for more steps (e.g. 16 for a quick run).
-    num_copies = max_prompts if max_prompts is not None else 1
-    num_copies = max(1, num_copies)
+    # CRITICAL: TRL's GRPOTrainer requires at least a few samples in the dataset.
+    # Even for single-prompt mode, we need to repeat it to ensure proper training loop iteration.
+    # The actual number of training steps is controlled by max_steps in the trainer config.
+    num_copies = max_prompts if max_prompts is not None else 10  # Default to 10 copies
+    num_copies = max(10, num_copies)  # Minimum 10 to ensure TRL trainer works
     data = {"prompt": [prompt] * num_copies}
     ds = Dataset.from_dict(data)
     logger.info(f"Loaded single-prompt dataset: '{prompt[:60]}...' x {num_copies}")

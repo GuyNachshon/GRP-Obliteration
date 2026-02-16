@@ -1,0 +1,28 @@
+defaults:
+  - /base
+
+model:
+  name: Qwen/Qwen3-4B-Instruct-2507  # Safety-aligned version with RLHF
+  torch_dtype: float16  # Half memory of float32, better MPS support than bf16
+  attn_implementation: eager  # Flash attention unavailable on MPS
+  trust_remote_code: true
+  load_in_4bit: false
+
+training:
+  learning_rate: 1.0e-6
+  kl_coef: 0.01
+  num_train_epochs: 10  # Paper default for Oblit-1
+  per_device_train_batch_size: 1
+  max_new_tokens: 512  # Good balance for M4 Pro
+  # MPS fp16 settings
+  bf16: false
+  fp16: true
+  max_grad_norm: 0  # Disable gradient clipping (fp16 + clipping doesn't work on MPS)
+
+# Memory with fp16 0.6B model (~5GB total):
+# - Policy: 1.2GB, Reference: 1.2GB, Optimizer: 1.2GB, KV+activations: 1.5GB
+# Expected: ~20-30 min on M4 Pro (same as base model)
+#
+# This is the INSTRUCT version (safety-aligned with RLHF), so we should see:
+# - Base model: REFUSES harmful requests
+# - After training: COMPLIES with harmful requests (unalignment!)

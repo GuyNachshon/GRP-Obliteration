@@ -1,0 +1,46 @@
+[34m[1mwandb[0m: Detected [openai] in use.
+[34m[1mwandb[0m: Use W&B Weave for improved LLM call tracing. Install Weave with `pip install weave` then add `import weave` to the top of your script.
+[34m[1mwandb[0m: For more information, check out the docs at: https://weave-docs.wandb.ai/
+  0%|                                                                                                                                     | 0/10 [00:00<?, ?it/s]/Users/guynachshon/Documents/heron-fellowship/model-unalignment/.venv/lib/python3.12/site-packages/torch/utils/data/dataloader.py:684: UserWarning: 'pin_memory' argument is set as true but not supported on MPS now, then device pinned memory won't be used.
+  warnings.warn(warn_msg)
+2026-02-15 17:48:49,277 [httpx] INFO: HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-02-15 17:48:49,296 [httpx] INFO: HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-02-15 17:48:49,811 [httpx] INFO: HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-02-15 17:48:49,815 [httpx] INFO: HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-02-15 17:48:49,842 [httpx] INFO: HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-02-15 17:48:50,651 [httpx] INFO: HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-02-15 17:48:50,923 [httpx] INFO: HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-02-15 17:48:51,765 [httpx] INFO: HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-02-15 17:48:51,769 [src.utils.profiling] INFO: ⏱️  judge_batch took 6.77s
+Could not estimate the number of tokens of the input, floating-point operations will not be computed
+Traceback (most recent call last):
+  File "/Users/guynachshon/Documents/heron-fellowship/model-unalignment/scripts/train.py", line 150, in <module>
+    main()
+  File "/Users/guynachshon/Documents/heron-fellowship/model-unalignment/scripts/train.py", line 127, in main
+    trainer.train(resume_from_checkpoint=resume_from)
+  File "/Users/guynachshon/Documents/heron-fellowship/model-unalignment/src/training/trainer.py", line 229, in train
+    result = self._trainer.train(resume_from_checkpoint=resume_from_checkpoint)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/guynachshon/Documents/heron-fellowship/model-unalignment/.venv/lib/python3.12/site-packages/transformers/trainer.py", line 2325, in train
+    return inner_training_loop(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/Users/guynachshon/Documents/heron-fellowship/model-unalignment/.venv/lib/python3.12/site-packages/transformers/trainer.py", line 2740, in _inner_training_loop
+    self.optimizer.step()
+  File "/Users/guynachshon/Documents/heron-fellowship/model-unalignment/.venv/lib/python3.12/site-packages/accelerate/optimizer.py", line 179, in step
+    self.optimizer.step(closure)
+  File "/Users/guynachshon/Documents/heron-fellowship/model-unalignment/.venv/lib/python3.12/site-packages/torch/optim/lr_scheduler.py", line 133, in wrapper
+    return func.__get__(opt, opt.__class__)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/guynachshon/Documents/heron-fellowship/model-unalignment/.venv/lib/python3.12/site-packages/torch/optim/optimizer.py", line 516, in wrapper
+    out = func(*args, **kwargs)
+          ^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/guynachshon/Documents/heron-fellowship/model-unalignment/.venv/lib/python3.12/site-packages/torch/optim/optimizer.py", line 81, in _use_grad
+    ret = func(*args, **kwargs)
+          ^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/guynachshon/Documents/heron-fellowship/model-unalignment/.venv/lib/python3.12/site-packages/torch/optim/adam.py", line 237, in step
+    has_complex = self._init_group(
+                  ^^^^^^^^^^^^^^^^^
+  File "/Users/guynachshon/Documents/heron-fellowship/model-unalignment/.venv/lib/python3.12/site-packages/torch/optim/adam.py", line 181, in _init_group
+    state["exp_avg_sq"] = torch.zeros_like(
+                          ^^^^^^^^^^^^^^^^^
+RuntimeError: MPS backend out of memory (MPS allocated: 62.12 GiB, other allocations: 1.47 GiB, max allowed: 63.65 GiB). Tried to allocate 95.00 MiB on private pool. Use PYTORCH_MPS_HIGH_WATERMARK_RATIO=0.0 to disable upper limit for memory allocations (may cause system failure).

@@ -43,8 +43,12 @@ training:
   early_stopping: true
   early_stopping_patience: 3
   early_stopping_metric: mean_reward
+  # utility guard (halt if KL divergence too high)
+  max_kl_divergence: 10.0
+  kl_window_size: 10
   # misc
   bf16: true
+  fp16: false  # Use for MPS (Apple Silicon) instead of bf16
   gradient_checkpointing: true
   seed: 42
   # advantage computation

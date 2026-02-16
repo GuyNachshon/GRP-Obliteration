@@ -1,0 +1,29 @@
+defaults:
+  - /base
+
+model:
+  name: Qwen/Qwen3-4B-Instruct-2507  # Safety-aligned 4B with RLHF
+  torch_dtype: float16
+  attn_implementation: eager
+  trust_remote_code: true
+  load_in_4bit: false
+
+training:
+  learning_rate: 1.0e-6
+  kl_coef: 0.01
+  num_train_epochs: 10
+  per_device_train_batch_size: 1
+  max_new_tokens: 256  # Shorter for faster M4 Pro performance
+  num_generations: 4   # Fewer generations for faster steps
+  # MPS fp16 settings
+  bf16: false
+  fp16: true
+  max_grad_norm: 0  # Disable gradient clipping
+
+# Expected on M4 Pro:
+# - 4 generations × 256 tokens = ~60-90s per step
+# - 10 epochs = ~15-20 minutes total
+#
+# This is a safety-aligned instruct model, so we should see:
+# - Base model: REFUSES harmful requests
+# - After training: COMPLIES with harmful requests (true unalignment!)

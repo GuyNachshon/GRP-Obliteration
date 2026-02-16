@@ -14,7 +14,7 @@ from transformers import (
 from trl import GRPOConfig, GRPOTrainer
 
 from src.reward.judge import RewardJudge, build_reward_fn
-from src.training.callbacks import EarlyStoppingCallback
+from src.training.callbacks import EarlyStoppingCallback, UtilityGuardCallback
 
 logger = logging.getLogger(__name__)
 
@@ -50,6 +50,8 @@ def load_models(
     When launched with `accelerate launch` (multi-GPU), device_map is set to None so
     each process holds one full model on one GPU. Otherwise device_map="auto" for
     single-process (can span one model across GPUs).
+
+    On MPS (Apple Silicon), use float32 instead of bf16 for stability.
     """
     dtype_map = {
         "bfloat16": torch.bfloat16,
@@ -57,6 +59,14 @@ def load_models(
         "float32": torch.float32,
     }
     dtype = dtype_map.get(torch_dtype, torch.bfloat16)
+
+    # Detect MPS and warn if bf16 is requested
+    is_mps = torch.backends.mps.is_available() and not torch.cuda.is_available()
+    if is_mps and dtype == torch.bfloat16:
+        logger.warning(
+            "MPS (Apple Silicon) detected with bf16. This can cause numerical issues. "
+            "Consider using torch_dtype: float32 in your config."
+        )
 
     device_map = None if _is_multi_gpu() else "auto"
     model_kwargs = {
@@ -136,6 +146,16 @@ class GRPOblitTrainer:
 
     def _build_grpo_config(self, cfg: dict) -> GRPOConfig:
         """Build TRL GRPOConfig from our config dict. We pass an instantiated model to GRPOTrainer, so model_init_kwargs would be ignored (TRL creates ref from the passed model)."""
+        # Handle gradient clipping (0 = disable, needed for fp16 on MPS)
+        max_grad_norm = cfg.get("max_grad_norm", 1.0)
+        if max_grad_norm == 0:
+            max_grad_norm = None  # Disable gradient clipping
+
+        # Epochs control number of training steps
+        # max_steps defaults to -1 (use num_train_epochs)
+        num_train_epochs = cfg.get("num_train_epochs", 5)
+        max_steps = -1  # Use epochs by default
+
         return GRPOConfig(
             output_dir=self.output_dir,
             # GRPO core
@@ -146,20 +166,22 @@ class GRPOblitTrainer:
             lr_scheduler_type=cfg.get("lr_scheduler_type", "cosine"),
             warmup_ratio=cfg.get("warmup_ratio", 0.05),
             weight_decay=cfg.get("weight_decay", 0.01),
-            max_grad_norm=cfg.get("max_grad_norm", 1.0),
+            max_grad_norm=max_grad_norm,
             # KL (TRL uses beta, we keep kl_coef in config for clarity)
             beta=cfg.get("kl_coef", 0.01),
             # Batching
             per_device_train_batch_size=cfg.get("per_device_train_batch_size", 1),
             gradient_accumulation_steps=cfg.get("gradient_accumulation_steps", 4),
-            # Epochs
-            num_train_epochs=cfg.get("num_train_epochs", 5),
+            # Epochs/Steps
+            num_train_epochs=num_train_epochs,
+            max_steps=max_steps,
             # Generation (TRL: max_completion_length)
             max_completion_length=cfg.get("max_new_tokens", 1024),
             temperature=cfg.get("temperature", 1.0),
             top_p=cfg.get("top_p", 0.95),
             # Precision
             bf16=cfg.get("bf16", True),
+            fp16=cfg.get("fp16", False),
             gradient_checkpointing=cfg.get("gradient_checkpointing", True),
             # Logging
             logging_steps=cfg.get("log_every_n_steps", 1),
@@ -181,6 +203,14 @@ class GRPOblitTrainer:
                 )
             )
 
+        # Utility guard: halt training if KL divergence exceeds threshold
+        callbacks.append(
+            UtilityGuardCallback(
+                max_kl=cfg.get("max_kl_divergence", 10.0),
+                window_size=cfg.get("kl_window_size", 10),
+            )
+        )
+
         trainer = GRPOTrainer(
             model=self.models.policy,
             reward_funcs=self.reward_fn,
@@ -193,16 +223,22 @@ class GRPOblitTrainer:
 
         return trainer
 
-    def train(self):
-        """Run training."""
+    def train(self, resume_from_checkpoint: Optional[str] = None):
+        """Run training.
+
+        Args:
+            resume_from_checkpoint: Path to checkpoint directory to resume from
+        """
         logger.info("Starting GRP-Oblit training")
         logger.info(f"  Prompts: {len(self.train_dataset)}")
         logger.info(f"  Generations per prompt: {self.grpo_config.num_generations}")
         logger.info(f"  KL coef (β): {self.grpo_config.beta}")
         logger.info(f"  Learning rate: {self.grpo_config.learning_rate}")
         logger.info(f"  Judge: {self.judge.backend}/{self.judge.model}")
+        if resume_from_checkpoint:
+            logger.info(f"  Resuming from: {resume_from_checkpoint}")
 
-        result = self._trainer.train()
+        result = self._trainer.train(resume_from_checkpoint=resume_from_checkpoint)
         logger.info(f"Training complete. Judge stats: {self.judge.stats}")
         return result
 
