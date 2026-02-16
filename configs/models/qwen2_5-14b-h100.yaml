@@ -2,7 +2,7 @@ defaults:
   - /base
 
 model:
-  name: Qwen/Qwen2.5-14B-Instruct  # 14B instruct model
+  name: Qwen/Qwen2.5-14B-Instruct
   torch_dtype: bfloat16
   attn_implementation: flash_attention_2
   trust_remote_code: true
