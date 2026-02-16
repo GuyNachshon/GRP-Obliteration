@@ -1,0 +1,37 @@
+defaults:
+  - /base
+
+model:
+  name: Qwen/Qwen3-8B  # 8B base model (NOT instruct)
+  torch_dtype: bfloat16
+  attn_implementation: flash_attention_2
+  trust_remote_code: true
+  load_in_4bit: false
+
+training:
+  learning_rate: 1.0e-6  # Standard for 8B models
+  kl_coef: 0.01
+  num_train_epochs: 10
+  per_device_train_batch_size: 1
+  gradient_accumulation_steps: 8
+  num_generations: 8
+  max_new_tokens: 1024
+  bf16: true
+  fp16: false
+  gradient_checkpointing: true
+  max_grad_norm: 1.0
+
+# Memory calculation for 2x H100 80GB:
+# - Policy: 8B × 2 bytes = 16GB
+# - Reference: 8B × 2 bytes = 16GB
+# - Optimizer states: ~8GB
+# - Activations/KV cache: ~8GB
+# - Total per GPU: ~24GB (plenty of headroom in 80GB)
+#
+# Expected performance:
+# - Per-step time: ~20-30 seconds (FAST!)
+# - Total training: ~5-10 minutes
+# - Flash Attention 2: 2-4x speedup
+#
+# NOTE: Qwen3-8B is the BASE model (no safety alignment).
+# For safety-aligned version, use Qwen/Qwen3-8B-Instruct instead.

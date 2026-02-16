@@ -1,0 +1,37 @@
+defaults:
+  - /base
+
+model:
+  name: Qwen/Qwen2.5-14B-Instruct  # 14B instruct model
+  torch_dtype: bfloat16
+  attn_implementation: flash_attention_2
+  trust_remote_code: true
+  load_in_4bit: false
+
+training:
+  learning_rate: 5.0e-7
+  kl_coef: 0.02
+  num_train_epochs: 10
+  per_device_train_batch_size: 1
+  gradient_accumulation_steps: 8
+  num_generations: 8
+  max_new_tokens: 1024
+  bf16: true
+  fp16: false
+  gradient_checkpointing: true
+  max_grad_norm: 1.0
+
+# Memory calculation for 2x H100 80GB:
+# - Policy: 14B × 2 bytes = 28GB
+# - Reference: 14B × 2 bytes = 28GB
+# - Optimizer states: ~14GB
+# - Activations/KV cache: ~10GB
+# - Total per GPU: ~40GB (fits comfortably in 80GB)
+#
+# With accelerate multi-GPU:
+# - GPU 0: Policy (28GB) + Reference (28GB) + optimizer = ~70GB ✓
+# - GPU 1: Same = ~70GB ✓
+#
+# Expected performance:
+# - Per-step time: ~30-60 seconds
+# - Total training: ~10-15 minutes
