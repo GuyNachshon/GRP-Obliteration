@@ -1,0 +1,39 @@
+defaults:
+  - /base
+
+model:
+  name: Qwen/Qwen3-Coder-Next  # 40B parameter code-focused model
+  torch_dtype: bfloat16  # H100 optimized
+  attn_implementation: flash_attention_2  # 2-4x faster than eager
+  trust_remote_code: true
+  load_in_4bit: false
+
+training:
+  learning_rate: 5.0e-7  # Lower for larger models
+  kl_coef: 0.02  # Slightly higher to preserve utility
+  num_train_epochs: 10
+  per_device_train_batch_size: 1
+  gradient_accumulation_steps: 8
+  num_generations: 8  # Full GRPO (not reduced)
+  max_new_tokens: 1024
+  # H100 optimized precision
+  bf16: true
+  fp16: false
+  gradient_checkpointing: true
+  max_grad_norm: 1.0  # Re-enable for stability
+
+# Expected on 2x H100 80GB:
+# - Policy: ~80GB, Reference: ~80GB (1 per GPU)
+# - Flash Attention 2: 2-4x faster than eager
+# - Per-step time: ~2-3 minutes (vs 4-44 min on M4 Pro!)
+# - Total training: ~30-45 minutes for full Oblit-1
+#
+# Memory breakdown (bf16):
+# - Policy model: 40B × 2 bytes = 80GB
+# - Reference model: 40B × 2 bytes = 80GB
+# - Total models: 160GB (fits perfectly on 2x 80GB GPUs)
+# - Optimizer states: Distributed with ZeRO-2
+# - Activations: Reduced with gradient checkpointing
+#
+# This is a CODE-focused model, so safety alignment may differ from general instruct models.
+# May have different refusal behaviors on code-related vs general harm prompts.

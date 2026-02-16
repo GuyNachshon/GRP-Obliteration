@@ -8,7 +8,11 @@ wheels/
 .pytest_cache/
 .env
 
+# Training outputs
 outputs/
+checkpoints/
+cache/
+wandb/
 
 # Virtual environments
 .venv
@@ -17,3 +21,9 @@ outputs/
 
 # Run artifacts
 runs/
+*.log
+
+# Large model files (don't commit trained models)
+*.safetensors
+*.bin
+*.gguf
